@@ -191,68 +191,85 @@ def checkout():
         else:
             generated_key = b'\0' * 16  # Default key if no method is selected (AES requires 16-byte key)
 
-        # Measure encryption time and memory usage for credit card
+
         tracemalloc.start()  # Start memory tracking
+        start_memory_credit_card = tracemalloc.get_traced_memory()[0]
         start_time_credit_card = time.perf_counter()
         encrypted_credit_card = encrypt_data(credit_card, generated_key)
         encryption_end_time_credit_card = time.perf_counter()
         encryption_time_credit_card = encryption_end_time_credit_card - start_time_credit_card
-        _, peak_memory_credit_card = tracemalloc.get_traced_memory()
+        end_memory_credit_card = tracemalloc.get_traced_memory()[0]
+        encryption_memory_credit_card = end_memory_credit_card - start_memory_credit_card
         tracemalloc.stop()  # Stop memory tracking
 
         # Measure decryption time and memory usage for credit card
         tracemalloc.start()
+        start_memory_decrypt_credit_card = tracemalloc.get_traced_memory()[0]
         start_decrypt_time_credit_card = time.perf_counter()
         decrypted_credit_card = decrypt_data(encrypted_credit_card, generated_key)
         decryption_end_time_credit_card = time.perf_counter()
         decryption_time_credit_card = decryption_end_time_credit_card - start_decrypt_time_credit_card
-        _, peak_memory_decrypt_credit_card = tracemalloc.get_traced_memory()
+        end_memory_decrypt_credit_card = tracemalloc.get_traced_memory()[0]
+        decryption_memory_credit_card = end_memory_decrypt_credit_card - start_memory_decrypt_credit_card
         tracemalloc.stop()
 
         # Measure encryption time and memory usage for expiry date
         tracemalloc.start()
+        start_memory_encrypt_expiry = tracemalloc.get_traced_memory()[0]
         start_time_expiry = time.perf_counter()
         encrypted_expiry_date = encrypt_data(expiry_date, generated_key)
         encryption_end_time_expiry = time.perf_counter()
         encryption_time_expiry = encryption_end_time_expiry - start_time_expiry
-        _, peak_memory_expiry = tracemalloc.get_traced_memory()
+        end_memory_encrypt_expiry = tracemalloc.get_traced_memory()[0]
+        encryption_memory_encrypt_expiry = end_memory_encrypt_expiry - start_memory_encrypt_expiry
         tracemalloc.stop()
 
         # Measure decryption time and memory usage for expiry date
         tracemalloc.start()
+        start_memory_decrypt_expiry = tracemalloc.get_traced_memory()[0]
         start_decrypt_time_expiry = time.perf_counter()
         decrypted_expiry_date = decrypt_data(encrypted_expiry_date, generated_key)
         decryption_end_time_expiry = time.perf_counter()
         decryption_time_expiry = decryption_end_time_expiry - start_decrypt_time_expiry
-        _, peak_memory_decrypt_expiry = tracemalloc.get_traced_memory()
+        end_memory_decrypt_expiry = tracemalloc.get_traced_memory()[0]
+        decryption_memory_decrypt_expiry = end_memory_decrypt_expiry - start_memory_decrypt_expiry
         tracemalloc.stop()
 
         # Measure encryption time and memory usage for CVC
         tracemalloc.start()
+        start_memory_encrypt_cvc = tracemalloc.get_traced_memory()[0]
         start_time_cvc = time.perf_counter()
         encrypted_cvc = encrypt_data(cvc, generated_key)
         encryption_end_time_cvc = time.perf_counter()
         encryption_time_cvc = encryption_end_time_cvc - start_time_cvc
-        _, peak_memory_cvc = tracemalloc.get_traced_memory()
+        end_memory_encrypt_cvc = tracemalloc.get_traced_memory()[0]
+        encryption_memory_encrypt_cvc = end_memory_encrypt_cvc - start_memory_encrypt_cvc
         tracemalloc.stop()
 
         # Measure decryption time and memory usage for CVC
         tracemalloc.start()
+        start_memory_decrypt_cvc = tracemalloc.get_traced_memory()[0]
         start_decrypt_time_cvc = time.perf_counter()
         decrypted_cvc = decrypt_data(encrypted_cvc, generated_key)
         decryption_end_time_cvc = time.perf_counter()
         decryption_time_cvc = decryption_end_time_cvc - start_decrypt_time_cvc
-        _, peak_memory_decrypt_cvc = tracemalloc.get_traced_memory()
+        end_memory_decrypt_cvc = tracemalloc.get_traced_memory()[0]
+        decryption_memory_decrypt_cvc = end_memory_decrypt_cvc - start_memory_decrypt_cvc
         tracemalloc.stop()
 
         # Calculate total execution time
         total_execution_time = (encryption_time_credit_card + decryption_time_credit_card + 
                                 encryption_time_expiry + decryption_time_expiry + 
                                 encryption_time_cvc + decryption_time_cvc)
+        
+        encryption_memories = (encryption_memory_credit_card + encryption_memory_encrypt_expiry +
+                                encryption_memory_encrypt_cvc)
+        decryption_memories = (decryption_memory_credit_card + decryption_memory_decrypt_expiry +
+                                decryption_memory_decrypt_cvc)
 
         # Log transaction history for credit card only (one row per transaction)
         log_history(encryption_method, encrypted_credit_card, decrypted_credit_card, encryption_time_credit_card, decryption_time_credit_card, 
-                    total_execution_time, peak_memory_credit_card, peak_memory_decrypt_credit_card)
+                    total_execution_time, encryption_memories, decryption_memories)
 
         return render_template('checkout.html', 
             encrypted_payment={
