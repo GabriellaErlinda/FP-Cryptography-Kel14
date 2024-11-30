@@ -145,8 +145,11 @@ CATALOG = [
 ]
 
 def log_history(encryption_method, encrypted_data, decrypted_data, encryption_time, decryption_time, total_execution_time, encryption_memory, decryption_memory):
+    # Initialize session history if it's not present
     if 'history' not in session:
         session['history'] = []
+    
+    # Append a new log entry to the history
     session['history'].append({
         'encryption_method': encryption_method,
         'encrypted_data': encrypted_data,
@@ -154,10 +157,13 @@ def log_history(encryption_method, encrypted_data, decrypted_data, encryption_ti
         'encryption_time': f"{encryption_time:.6f} seconds",
         'decryption_time': f"{decryption_time:.6f} seconds",
         'total_execution_time': f"{total_execution_time:.6f} seconds",
-        'encryption_memory': f"{encryption_memory / 1024:.2f} KB",  # Convert bytes to KB
-        'decryption_memory': f"{decryption_memory / 1024:.2f} KB",  # Convert bytes to KB
-        'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
+        'encryption_memory': f"{encryption_memory / 1024:.2f} KB",  # Convert to KB
+        'decryption_memory': f"{decryption_memory / 1024:.2f} KB",  # Convert to KB
+        'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')  # Timestamp for the transaction
     })
+    # Make sure to save the updated session data
+    session.modified = True
+
     
 
 
@@ -269,6 +275,7 @@ def checkout():
         )
     
     return render_template('checkout.html')
+
 
 
 

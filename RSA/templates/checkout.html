@@ -69,43 +69,41 @@
                 </form>
 
                 <!-- Transaction History Table -->
-                <!-- Transaction History Table -->
-{% if history %}
-<div class="mt-5">
-    <h3>Transaction History</h3>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Timestamp</th>
-                <th>Encryption Method</th>
-                <th>Encrypted Data</th>
-                <th>Decrypted Data</th>
-                <th>Encryption Time</th>
-                <th>Decryption Time</th>
-                <th>Total Execution Time</th>
-                <th>Encryption Memory</th>
-                <th>Decryption Memory</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for entry in history %}
-                <tr>
-                    <td>{{ entry.timestamp }}</td>
-                    <td>{{ entry.encryption_method }}</td>
-                    <td>{{ entry.encrypted_data }}</td>
-                    <td>{{ entry.decrypted_data }}</td>
-                    <td>{{ entry.encryption_time }}</td>
-                    <td>{{ entry.decryption_time }}</td>
-                    <td>{{ entry.total_execution_time }}</td>
-                    <td>{{ entry.encryption_memory }}</td>
-                    <td>{{ entry.decryption_memory }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% endif %}
-
+                {% if history %}
+                    <div class="mt-5">
+                        <h3>Transaction History</h3>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Encryption Method</th>
+                                    <th>Encrypted Data</th>
+                                    <th>Decrypted Data</th>
+                                    <th>Encryption Time</th>
+                                    <th>Decryption Time</th>
+                                    <th>Total Execution Time</th>
+                                    <th>Encryption Memory (KB)</th>
+                                    <th>Decryption Memory (KB)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in history %}
+                                    <tr>
+                                        <td>{{ entry.timestamp }}</td>
+                                        <td>{{ entry.encryption_method }}</td>
+                                        <td>{{ entry.encrypted_data }}</td>
+                                        <td>{{ entry.decrypted_data }}</td>
+                                        <td>{{ entry.encryption_time }}</td>
+                                        <td>{{ entry.decryption_time }}</td>
+                                        <td>{{ entry.total_execution_time }}</td>
+                                        <td>{{ entry.encryption_memory }}</td>
+                                        <td>{{ entry.decryption_memory }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
             </div>
         </div>
 
