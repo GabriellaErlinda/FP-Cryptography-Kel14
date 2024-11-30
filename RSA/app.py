@@ -5,6 +5,7 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from markupsafe import Markup
 import tracemalloc
 import json
+import base64
 
 # Define escapejs filter
 def escapejs(value):
@@ -164,11 +165,6 @@ def log_history(encryption_method, encrypted_data, decrypted_data, encryption_ti
     # Make sure to save the updated session data
     session.modified = True
 
-    
-
-
-
-
 # Route for home/catalog page
 @app.route('/')
 def index():
@@ -276,10 +272,6 @@ def checkout():
     
     return render_template('checkout.html')
 
-
-
-
-
 # Add to cart functionality
 @app.route('/cart')
 def cart():
@@ -308,6 +300,70 @@ def remove_from_cart(item_id):
         cart.pop(item_id)
         session['cart'] = cart
     return redirect(url_for('cart'))
+
+# Function to encode bytes to base64 string
+def encode_bytes_data(data):
+    if isinstance(data, bytes):
+        return base64.b64encode(data).decode('utf-8')  # Encode bytes as a base64 string
+    return data  # Return non-bytes data as is
+
+@app.route('/performance')
+def performance():
+    # Extract history from session
+    history = session.get('history', [])
+    
+    # Initialize data containers for the two encryption methods
+    hybrid_chaotic_data = {
+        'encryption_times': [],
+        'decryption_times': [],
+        'total_execution_times': [],
+        'encryption_memories': [],
+        'decryption_memories': [],
+        'encrypted_data': [],
+        'decrypted_data': [],
+        'timestamps': []
+    }
+    rctm_data = {
+        'encryption_times': [],
+        'decryption_times': [],
+        'total_execution_times': [],
+        'encryption_memories': [],
+        'decryption_memories': [],
+        'encrypted_data': [],
+        'decrypted_data': [],
+        'timestamps': []
+    }
+
+    # Process history to separate data based on encryption method
+    for record in history:
+        data_container = hybrid_chaotic_data if record['encryption_method'] == 'hybrid_chaotic' else rctm_data
+        
+        # Append relevant fields to the corresponding container
+        data_container['encryption_times'].append(float(record['encryption_time'].split()[0]))
+        data_container['decryption_times'].append(float(record['decryption_time'].split()[0]))
+        data_container['total_execution_times'].append(float(record['total_execution_time'].split()[0]))
+        data_container['encryption_memories'].append(float(record['encryption_memory'].split()[0]))
+        data_container['decryption_memories'].append(float(record['decryption_memory'].split()[0]))
+        
+        # Convert encrypted and decrypted data to base64
+        data_container['encrypted_data'].append(encode_bytes_data(record['encrypted_data']))
+        data_container['decrypted_data'].append(encode_bytes_data(record['decrypted_data']))
+        
+        data_container['timestamps'].append(record['timestamp'])
+
+    # Prepare data for rendering
+    performance_data = {
+        'hybrid_chaotic': hybrid_chaotic_data,
+        'rctm': rctm_data
+    }
+
+    return render_template('performance.html', performance_data=performance_data)
+
+@app.route('/clear_history')
+def clear_history():
+    session.clear()
+    return redirect(url_for('index')) 
+
 
 if __name__ == '__main__':
     app.run(debug=True)

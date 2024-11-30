@@ -47,7 +47,7 @@
                     </div>
                     <div class="mb-3 row">
                         <div class="col">
-                            <label for="expiry_date" class="form-label">Expiry Date (MMYY)</label>
+                            <label for="expiry_date" class="form-label">Expiry Date (MM/YY)</label>
                             <input type="text" class="form-control" id="expiry_date" name="expiry_date" required>
                         </div>
                         <div class="col">
@@ -67,49 +67,49 @@
 
                     <button type="submit" class="btn btn-primary w-100">Submit Payment</button>
                 </form>
-
-                <!-- Transaction History Table -->
-                {% if history %}
-                    <div class="mt-5">
-                        <h3>Transaction History</h3>
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Timestamp</th>
-                                    <th>Encryption Method</th>
-                                    <th>Encrypted Data</th>
-                                    <th>Decrypted Data</th>
-                                    <th>Encryption Time</th>
-                                    <th>Decryption Time</th>
-                                    <th>Total Execution Time</th>
-                                    <th>Encryption Memory (KB)</th>
-                                    <th>Decryption Memory (KB)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for entry in history %}
-                                    <tr>
-                                        <td>{{ entry.timestamp }}</td>
-                                        <td>{{ entry.encryption_method }}</td>
-                                        <td>{{ entry.encrypted_data }}</td>
-                                        <td>{{ entry.decrypted_data }}</td>
-                                        <td>{{ entry.encryption_time }}</td>
-                                        <td>{{ entry.decryption_time }}</td>
-                                        <td>{{ entry.total_execution_time }}</td>
-                                        <td>{{ entry.encryption_memory }}</td>
-                                        <td>{{ entry.decryption_memory }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% endif %}
             </div>
         </div>
 
         <div class="mt-4 text-center">
             <a href="{{ url_for('cart') }}" class="btn btn-secondary">Back to Cart</a>
         </div>
+        
+        <!-- Transaction History Table -->
+        {% if history %}
+        <div class="mt-5" style="width: 100%; padding: 20px;">
+            <h3 class="text-center">Transaction History</h3>
+            <table class="table table-striped" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Encryption Method</th>
+                        <th>Encrypted Data</th>
+                        <th>Decrypted Data</th>
+                        <th>Encryption Time</th>
+                        <th>Decryption Time</th>
+                        <th>Total Execution Time</th>
+                        <th>Encryption Memory (KB)</th>
+                        <th>Decryption Memory (KB)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in history %}
+                    <tr>
+                        <td>{{ entry.timestamp }}</td>
+                        <td>{{ entry.encryption_method }}</td>
+                        <td>{{ entry.encrypted_data }}</td>
+                        <td>{{ entry.decrypted_data }}</td>
+                        <td>{{ entry.encryption_time }}</td>
+                        <td>{{ entry.decryption_time }}</td>
+                        <td>{{ entry.total_execution_time }}</td>
+                        <td>{{ entry.encryption_memory }}</td>
+                        <td>{{ entry.decryption_memory }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
     </div>
 </body>
 </html>
