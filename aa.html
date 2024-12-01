@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,56 +35,42 @@
                 <div class="chart-card">
                     <h3>Total Execution Time (Seconds)</h3>
                     <canvas id="totalExecutionTimeChart"></canvas>
-                    <p><strong>Hybrid Chaotic Average:</strong> <span id="avg-hybrid-total-execution-time"></span></p>
-                    <p><strong>RCTM Average:</strong> <span id="avg-rctm-total-execution-time"></span></p>
                 </div>
             </div>
             <div class="col-md-4 col-lg-6 chart-container">
                 <div class="chart-card">
                     <h3>Encryption Time (s)</h3>
                     <canvas id="encryptionTimeChart"></canvas>
-                    <p><strong>Hybrid Chaotic Average:</strong> <span id="avg-hybrid-encryption-time"></span></p>
-                    <p><strong>RCTM Average:</strong> <span id="avg-rctm-encryption-time"></span></p>
                 </div>
             </div>
             <div class="col-md-4 col-lg-6 chart-container">
                 <div class="chart-card">
                     <h3>Decryption Time (s)</h3>
                     <canvas id="decryptionTimeChart"></canvas>
-                    <p><strong>Hybrid Chaotic Average:</strong> <span id="avg-hybrid-decryption-time"></span></p>
-                    <p><strong>RCTM Average:</strong> <span id="avg-rctm-decryption-time"></span></p>
                 </div>
             </div>
             <div class="col-md-4 col-lg-6 chart-container">
                 <div class="chart-card">
                     <h3>Encryption Memory (KB)</h3>
                     <canvas id="encryptionMemoryChart"></canvas>
-                    <p><strong>Hybrid Chaotic Average:</strong> <span id="avg-hybrid-encryption-memory"></span></p>
-                    <p><strong>RCTM Average:</strong> <span id="avg-rctm-encryption-memory"></span></p>
                 </div>
             </div>
             <div class="col-md-4 col-lg-6 chart-container">
                 <div class="chart-card">
                     <h3>Decryption Memory (KB)</h3>
                     <canvas id="decryptionMemoryChart"></canvas>
-                    <p><strong>Hybrid Chaotic Average:</strong> <span id="avg-hybrid-decryption-memory"></span></p>
-                    <p><strong>RCTM Average:</strong> <span id="avg-rctm-decryption-memory"></span></p>
                 </div>
             </div>
             <div class="col-md-4 col-lg-12 chart-container">
                 <div class="chart-card">
                     <h3>Encryption Throughput (Bytes/sec)</h3>
                     <canvas id="encryptionThroughputChart"></canvas>
-                    <p><strong>Hybrid Chaotic Average:</strong> <span id="avg-hybrid-throughput"></span></p>
-                    <p><strong>RCTM Average:</strong> <span id="avg-rctm-throughput"></span></p>
                 </div>
             </div>
             <div class="col-md-4 col-lg-12 chart-container">
                 <div class="chart-card">
                     <h3>Encrypted Data Entropy</h3>
                     <canvas id="encryptedEntropyChart"></canvas>
-                    <p><strong>Hybrid Chaotic Average:</strong> <span id="avg-hybrid-entropy"></span></p>
-                    <p><strong>RCTM Average:</strong> <span id="avg-rctm-entropy"></span></p>
                 </div>
             </div>
         </div>
@@ -105,6 +92,8 @@
                 if (isConfirmed) {
                     window.location.href = "{{ url_for('clear_history') }}";
                 }
+
+            
             });
         });
 
@@ -131,56 +120,21 @@
             });
         }
 
-        // Function to calculate the average
         function calculateAverage(data) {
             const validData = data.filter(item => !isNaN(item));
             const sum = validData.reduce((acc, val) => acc + val, 0);
             return sum / validData.length;
         }
 
+
         // Helper function to ensure data is numeric (ignores non-numeric values like None or NaN)
         function sanitizeData(data) {
             return data.map(item => {
                 const value = parseFloat(item);
-                // If value is NaN or Infinity, return 0, otherwise return the valid value
-                return (isNaN(value) || !isFinite(value)) ? 0 : value;
+                return isNaN(value) ? 0 : value; // Replace invalid data with 0
             });
         }
 
-        // Calculate and display the averages for each chart
-        const avgHybridEncryptionTime = calculateAverage(performanceData.hybrid_chaotic.encryption_times);
-        const avgRctmEncryptionTime = calculateAverage(performanceData.rctm.encryption_times);
-        document.getElementById('avg-hybrid-encryption-time').textContent = avgHybridEncryptionTime.toFixed(6);
-        document.getElementById('avg-rctm-encryption-time').textContent = avgRctmEncryptionTime.toFixed(6);
-
-        const avgHybridDecryptionTime = calculateAverage(performanceData.hybrid_chaotic.decryption_times);
-        const avgRctmDecryptionTime = calculateAverage(performanceData.rctm.decryption_times);
-        document.getElementById('avg-hybrid-decryption-time').textContent = avgHybridDecryptionTime.toFixed(6);
-        document.getElementById('avg-rctm-decryption-time').textContent = avgRctmDecryptionTime.toFixed(6);
-
-                // Calculate and display the averages for throughput
-        const avgHybridThroughput = calculateAverage(performanceData.hybrid_chaotic.encryption_throughput);
-        const avgRctmThroughput = calculateAverage(performanceData.rctm.encryption_throughput);
-        document.getElementById('avg-hybrid-throughput').textContent = avgHybridThroughput.toFixed(6);
-        document.getElementById('avg-rctm-throughput').textContent = avgRctmThroughput.toFixed(6);  
-
-
-        const avgHybridEncryptionMemory = calculateAverage(performanceData.hybrid_chaotic.encryption_memories);
-        const avgRctmEncryptionMemory = calculateAverage(performanceData.rctm.encryption_memories);
-        document.getElementById('avg-hybrid-encryption-memory').textContent = avgHybridEncryptionMemory.toFixed(6);
-        document.getElementById('avg-rctm-encryption-memory').textContent = avgRctmEncryptionMemory.toFixed(6);
-
-        const avgHybridDecryptionMemory = calculateAverage(performanceData.hybrid_chaotic.decryption_memories);
-        const avgRctmDecryptionMemory = calculateAverage(performanceData.rctm.decryption_memories);
-        document.getElementById('avg-hybrid-decryption-memory').textContent = avgHybridDecryptionMemory.toFixed(6);
-        document.getElementById('avg-rctm-decryption-memory').textContent = avgRctmDecryptionMemory.toFixed(6);
-
-        const avgHybridEntropy = calculateAverage(performanceData.hybrid_chaotic.encrypted_entropy);
-        const avgRctmEntropy = calculateAverage(performanceData.rctm.encrypted_entropy);
-        document.getElementById('avg-hybrid-entropy').textContent = avgHybridEntropy.toFixed(6);
-        document.getElementById('avg-rctm-entropy').textContent = avgRctmEntropy.toFixed(6);
-
-        // Create all the charts
         // Encryption Time Chart
         createChart(
             document.getElementById('encryptionTimeChart'),
@@ -289,17 +243,17 @@
         // Throughput Chart for Encryption
         createChart(
             document.getElementById('encryptionThroughputChart'),
-            'Encryption Throughput Comparison (KB/sec)',
+            'Encryption Throughput Comparison (Bytes/sec)',
             Array.from({ length: performanceData.hybrid_chaotic.encryption_throughput.length }, (_, i) => i + 1),
             [
                 {
-                    label: 'Hybrid Chaotic Encryption Throughput (KB/sec)',
+                    label: 'Hybrid Chaotic Encryption Throughput (Bytes/sec)',
                     data: sanitizeData(performanceData.hybrid_chaotic.encryption_throughput),
                     borderColor: 'green',
                     fill: false
                 },
                 {
-                    label: 'RCTM Encryption Throughput (KB/sec)',
+                    label: 'RCTM Encryption Throughput (Bytes/sec)',
                     data: sanitizeData(performanceData.rctm.encryption_throughput),
                     borderColor: 'red',
                     fill: false
@@ -327,9 +281,11 @@
                 }
             ]
         );
+
     </script>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    
 </body>
 </html>

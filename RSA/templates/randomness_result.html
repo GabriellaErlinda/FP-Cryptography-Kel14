@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Randomness Test Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container my-5">
+        <h3>Randomness Test Results for {{ results.method }} Key</h3>
+        <p><strong>Frequency Test:</strong> {{ 'Passed' if results.frequency_test else 'Failed' }}</p>
+        <p><strong>Runs Test:</strong> {{ 'Passed' if results.runs_test else 'Failed' }}</p>
+        <p><strong>Autocorrelation Test:</strong> {{ 'Passed' if results.autocorrelation_test else 'Failed' }}</p>
+
+        <h4>Generated Key (Base64 Encoded)</h4>
+        <p>{{ key }}</p>
+
+        <a href="{{ url_for('generate_key') }}" class="btn btn-secondary">Back to Generate Key</a>
+    </div>
+</body>
+</html>

@@ -90,6 +90,10 @@
                         <th>Total Execution Time</th>
                         <th>Encryption Memory (KB)</th>
                         <th>Decryption Memory (KB)</th>
+                        <th>Encryption Throughput (bytes/sec)</th>
+                        <th>Decryption Throughput (bytes/sec)</th>
+                        <th>Encrypted Entropy</th>
+                        <th>Decrypted Entropy</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -104,6 +108,10 @@
                         <td>{{ entry.total_execution_time }}</td>
                         <td>{{ entry.encryption_memory }}</td>
                         <td>{{ entry.decryption_memory }}</td>
+                        <td>{{ entry.encryption_throughput }}</td>
+                        <td>{{ entry.decryption_throughput }}</td>
+                        <td>{{ entry.encrypted_entropy }}</td>
+                        <td>{{ entry.decrypted_entropy }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

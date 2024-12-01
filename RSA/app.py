@@ -6,6 +6,7 @@ from markupsafe import Markup
 import tracemalloc
 import json
 import base64
+import math
 
 # Define escapejs filter
 def escapejs(value):
@@ -20,9 +21,13 @@ app = Flask(__name__)
 app.secret_key = 'kelompok14_secure_ecommerce'
 app.jinja_env.filters['escapejs'] = escapejs
 
-# Hybrid Chaotic Key Generation (Logistic + Tent Map)
+# Modify the Hybrid Chaotic Key Generation to handle integer seed
 def hybrid_chaotic_key(seed, iterations=20):
     """ Generates a key by combining the Logistic and Tent maps """
+    
+    # Convert seed to a value between 0 and 1 by normalizing
+    seed = (seed % 100) / 100  # Normalize seed to a value between 0 and 1
+    
     key_sequence = []
     
     x_logistic = seed  # Initial value for the Logistic Map
@@ -39,6 +44,9 @@ def hybrid_chaotic_key(seed, iterations=20):
     
     # Return a key derived from SHA-256 hash of combined sequence
     return hashlib.sha256(''.join(key_sequence).encode()).digest()  # AES expects a byte key
+
+
+
 
 # RCTM Key Generation (Simple Chaotic System)
 def rctm_key(seed, iterations=10):
@@ -145,30 +153,142 @@ CATALOG = [
     {'id': 6, 'name': 'Mouse', 'price': 120, 'description': 'Gaming Mouse.', 'image': 'images/mouse.jpg'}
 ]
 
-def log_history(encryption_method, encrypted_data, decrypted_data, encryption_time, decryption_time, total_execution_time, encryption_memory, decryption_memory):
+def log_history(encryption_method, encrypted_data, decrypted_data, encryption_time, decryption_time, total_execution_time, encryption_memory, decryption_memory, generated_key):
     # Initialize session history if it's not present
     if 'history' not in session:
         session['history'] = []
     
+    # Convert the generated key to base64 for storage (to make it human-readable)
+    base64_generated_key = base64.b64encode(generated_key).decode('utf-8')
+
+    # Calculate throughput and entropy for both encrypted and decrypted data
+    encryption_throughput = calculate_throughput(len(encrypted_data), encryption_time)
+    decryption_throughput = calculate_throughput(len(decrypted_data), decryption_time)
+    
+    # Calculate entropy for encrypted data
+    encrypted_entropy = calculate_entropy(encrypted_data)
+    decrypted_entropy = calculate_entropy(decrypted_data)
+    
     # Append a new log entry to the history
     session['history'].append({
         'encryption_method': encryption_method,
-        'encrypted_data': encrypted_data,
+        'encrypted_data': base64.b64encode(encrypted_data).decode('utf-8'),  # Store in base64
         'decrypted_data': decrypted_data,
         'encryption_time': f"{encryption_time:.6f} seconds",
         'decryption_time': f"{decryption_time:.6f} seconds",
         'total_execution_time': f"{total_execution_time:.6f} seconds",
         'encryption_memory': f"{encryption_memory / 1024:.2f} KB",  # Convert to KB
         'decryption_memory': f"{decryption_memory / 1024:.2f} KB",  # Convert to KB
+        'generated_key': base64_generated_key,  # Store the base64-encoded generated key
+        'encryption_throughput': f"{encryption_throughput:.2f} KB/sec",  # Throughput for encryption (KB/sec)
+        'decryption_throughput': f"{decryption_throughput:.2f} KB/sec",  # Throughput for decryption (KB/sec)
+        'encrypted_entropy': f"{encrypted_entropy:.6f}",  # Entropy of encrypted data
+        'decrypted_entropy': f"{decrypted_entropy:.6f}",  # Entropy of decrypted data
         'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')  # Timestamp for the transaction
     })
     # Make sure to save the updated session data
     session.modified = True
 
+
+
+
+# Convert bytes to binary string
+def bytes_to_bin(data):
+    """Convert byte data to a binary string."""
+    return ''.join(format(byte, '08b') for byte in data)
+
+# Frequency Test (Monobit test)
+def frequency_test(bin_data):
+    """Perform frequency (monobit) test for randomness"""
+    ones = bin_data.count('1')
+    zeros = len(bin_data) - ones
+    expected = len(bin_data) / 2
+    return abs(ones - expected) < (len(bin_data) ** 0.5)
+
+# Runs Test
+def runs_test(bin_data):
+    """Perform runs test (count sequences of 1s or 0s)"""
+    runs = 0
+    current_char = bin_data[0]
+    for char in bin_data[1:]:
+        if char != current_char:
+            runs += 1
+            current_char = char
+    return runs > len(bin_data) // 2  # The number of runs should not be too low
+
+# Autocorrelation Test
+def autocorrelation_test(bin_data):
+    """Perform autocorrelation test (checks for periodicity)"""
+    n = len(bin_data)
+    count = sum(1 for i in range(n) if bin_data[i] == bin_data[(i + n//2) % n])
+    return count > n // 2  # Should not have periodicity
+
+# Key Generation Test
+def test_key_generation_randomness(key, method):
+    """Test the randomness of the generated key"""
+    bin_key = bytes_to_bin(key)
+    
+    frequency_result = frequency_test(bin_key)
+    runs_result = runs_test(bin_key)
+    autocorrelation_result = autocorrelation_test(bin_key)
+
+    return {
+        'method': method,
+        'frequency_test': frequency_result,
+        'runs_test': runs_result,
+        'autocorrelation_test': autocorrelation_result
+    }
+
+# Function to calculate throughput in KB/sec
+def calculate_throughput(data_size, process_time):
+    """ Calculate throughput in KB per second """
+    if process_time > 0:
+        return (data_size / process_time) / 1024  # Convert from Bytes/sec to KB/sec
+    return 0
+
+
+# Function to calculate entropy
+def calculate_entropy(data):
+    """ Calculate Shannon entropy of the data """
+    # Count frequency of each byte
+    byte_frequencies = {}
+    for byte in data:
+        byte_frequencies[byte] = byte_frequencies.get(byte, 0) + 1
+    
+    # Calculate entropy
+    data_size = len(data)
+    entropy = 0
+    for count in byte_frequencies.values():
+        prob = count / data_size
+        entropy -= prob * math.log2(prob)
+    
+    return entropy
+
 # Route for home/catalog page
 @app.route('/')
 def index():
     return render_template('index.html', catalog=CATALOG)
+
+@app.route('/generate_key')
+def generate_key():
+    return render_template('generate_key.html')
+
+@app.route('/test_randomness', methods=['POST'])
+def test_randomness():
+    seed = float(request.form['seed'])  # Get seed value from form input
+    encryption_method = request.form['encryption_method']  # Get selected encryption method
+
+    if encryption_method == 'rctm':
+        generated_key = rctm_key(seed)
+    elif encryption_method == 'hybrid_chaotic':
+        generated_key = hybrid_chaotic_key(seed)
+    else:
+        return "Invalid encryption method selected."
+
+    # Run randomness tests
+    randomness_results = test_key_generation_randomness(generated_key, encryption_method)
+
+    return render_template('randomness_result.html', results=randomness_results, key=base64.b64encode(generated_key).decode())
 
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
@@ -191,11 +311,10 @@ def checkout():
         else:
             generated_key = b'\0' * 16  # Default key if no method is selected (AES requires 16-byte key)
 
-
         tracemalloc.start()  # Start memory tracking
         start_memory_credit_card = tracemalloc.get_traced_memory()[0]
         start_time_credit_card = time.perf_counter()
-        encrypted_credit_card = encrypt_data(credit_card, generated_key)
+        encrypted_credit_card = aes_encrypt(credit_card, generated_key)
         encryption_end_time_credit_card = time.perf_counter()
         encryption_time_credit_card = encryption_end_time_credit_card - start_time_credit_card
         end_memory_credit_card = tracemalloc.get_traced_memory()[0]
@@ -206,7 +325,7 @@ def checkout():
         tracemalloc.start()
         start_memory_decrypt_credit_card = tracemalloc.get_traced_memory()[0]
         start_decrypt_time_credit_card = time.perf_counter()
-        decrypted_credit_card = decrypt_data(encrypted_credit_card, generated_key)
+        decrypted_credit_card = aes_decrypt(encrypted_credit_card, generated_key)
         decryption_end_time_credit_card = time.perf_counter()
         decryption_time_credit_card = decryption_end_time_credit_card - start_decrypt_time_credit_card
         end_memory_decrypt_credit_card = tracemalloc.get_traced_memory()[0]
@@ -217,7 +336,7 @@ def checkout():
         tracemalloc.start()
         start_memory_encrypt_expiry = tracemalloc.get_traced_memory()[0]
         start_time_expiry = time.perf_counter()
-        encrypted_expiry_date = encrypt_data(expiry_date, generated_key)
+        encrypted_expiry_date = aes_encrypt(expiry_date, generated_key)
         encryption_end_time_expiry = time.perf_counter()
         encryption_time_expiry = encryption_end_time_expiry - start_time_expiry
         end_memory_encrypt_expiry = tracemalloc.get_traced_memory()[0]
@@ -228,7 +347,7 @@ def checkout():
         tracemalloc.start()
         start_memory_decrypt_expiry = tracemalloc.get_traced_memory()[0]
         start_decrypt_time_expiry = time.perf_counter()
-        decrypted_expiry_date = decrypt_data(encrypted_expiry_date, generated_key)
+        decrypted_expiry_date = aes_decrypt(encrypted_expiry_date, generated_key)
         decryption_end_time_expiry = time.perf_counter()
         decryption_time_expiry = decryption_end_time_expiry - start_decrypt_time_expiry
         end_memory_decrypt_expiry = tracemalloc.get_traced_memory()[0]
@@ -239,7 +358,7 @@ def checkout():
         tracemalloc.start()
         start_memory_encrypt_cvc = tracemalloc.get_traced_memory()[0]
         start_time_cvc = time.perf_counter()
-        encrypted_cvc = encrypt_data(cvc, generated_key)
+        encrypted_cvc = aes_encrypt(cvc, generated_key)
         encryption_end_time_cvc = time.perf_counter()
         encryption_time_cvc = encryption_end_time_cvc - start_time_cvc
         end_memory_encrypt_cvc = tracemalloc.get_traced_memory()[0]
@@ -250,7 +369,7 @@ def checkout():
         tracemalloc.start()
         start_memory_decrypt_cvc = tracemalloc.get_traced_memory()[0]
         start_decrypt_time_cvc = time.perf_counter()
-        decrypted_cvc = decrypt_data(encrypted_cvc, generated_key)
+        decrypted_cvc = aes_decrypt(encrypted_cvc, generated_key)
         decryption_end_time_cvc = time.perf_counter()
         decryption_time_cvc = decryption_end_time_cvc - start_decrypt_time_cvc
         end_memory_decrypt_cvc = tracemalloc.get_traced_memory()[0]
@@ -267,9 +386,9 @@ def checkout():
         decryption_memories = (decryption_memory_credit_card + decryption_memory_decrypt_expiry +
                                 decryption_memory_decrypt_cvc)
 
-        # Log transaction history for credit card only (one row per transaction)
-        log_history(encryption_method, encrypted_credit_card, decrypted_credit_card, encryption_time_credit_card, decryption_time_credit_card, 
-                    total_execution_time, encryption_memories, decryption_memories)
+        # Log the transaction including the generated key
+        log_history(encryption_method, encrypted_credit_card, decrypted_credit_card, encryption_time_credit_card, 
+                    decryption_time_credit_card, total_execution_time, encryption_memories, decryption_memories, generated_key)
 
         return render_template('checkout.html', 
             encrypted_payment={
@@ -288,6 +407,7 @@ def checkout():
         )
     
     return render_template('checkout.html')
+
 
 # Add to cart functionality
 @app.route('/cart')
@@ -324,11 +444,17 @@ def encode_bytes_data(data):
         return base64.b64encode(data).decode('utf-8')  # Encode bytes as a base64 string
     return data  # Return non-bytes data as is
 
+def calculate_average(data):
+    valid_data = [x for x in data if not isinstance(x, str)]  # Remove any NaN or invalid entries
+    return sum(valid_data) / len(valid_data) if valid_data else 0
+
+
+# Pass performance data to the template
 @app.route('/performance')
 def performance():
     # Extract history from session
     history = session.get('history', [])
-    
+
     # Initialize data containers for the two encryption methods
     hybrid_chaotic_data = {
         'encryption_times': [],
@@ -338,7 +464,11 @@ def performance():
         'decryption_memories': [],
         'encrypted_data': [],
         'decrypted_data': [],
-        'timestamps': []
+        'timestamps': [],
+        'encryption_throughput': [],
+        'decryption_throughput': [],
+        'encrypted_entropy': [],
+        'decrypted_entropy': []
     }
     rctm_data = {
         'encryption_times': [],
@@ -348,33 +478,41 @@ def performance():
         'decryption_memories': [],
         'encrypted_data': [],
         'decrypted_data': [],
-        'timestamps': []
+        'timestamps': [],
+        'encryption_throughput': [],
+        'decryption_throughput': [],
+        'encrypted_entropy': [],
+        'decrypted_entropy': []
     }
 
     # Process history to separate data based on encryption method
     for record in history:
         data_container = hybrid_chaotic_data if record['encryption_method'] == 'hybrid_chaotic' else rctm_data
         
-        # Append relevant fields to the corresponding container
         data_container['encryption_times'].append(float(record['encryption_time'].split()[0]))
         data_container['decryption_times'].append(float(record['decryption_time'].split()[0]))
         data_container['total_execution_times'].append(float(record['total_execution_time'].split()[0]))
         data_container['encryption_memories'].append(float(record['encryption_memory'].split()[0]))
         data_container['decryption_memories'].append(float(record['decryption_memory'].split()[0]))
         
-        # Convert encrypted and decrypted data to base64
-        data_container['encrypted_data'].append(encode_bytes_data(record['encrypted_data']))
-        data_container['decrypted_data'].append(encode_bytes_data(record['decrypted_data']))
+        data_container['encrypted_data'].append(record['encrypted_data'])
+        data_container['decrypted_data'].append(record['decrypted_data'])
         
         data_container['timestamps'].append(record['timestamp'])
+        
+        # Add throughput and entropy data
+        data_container['encryption_throughput'].append(record['encryption_throughput'])
+        data_container['decryption_throughput'].append(record['decryption_throughput'])
+        data_container['encrypted_entropy'].append(record['encrypted_entropy'])
+        data_container['decrypted_entropy'].append(record['decrypted_entropy'])
 
-    # Prepare data for rendering
     performance_data = {
         'hybrid_chaotic': hybrid_chaotic_data,
         'rctm': rctm_data
     }
 
     return render_template('performance.html', performance_data=performance_data)
+
 
 @app.route('/clear_history')
 def clear_history():
