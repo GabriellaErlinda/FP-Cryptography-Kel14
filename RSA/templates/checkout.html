@@ -16,18 +16,6 @@
                     <!-- Success Message for Processed Payment -->
                     <div class="alert alert-success">
                         <h4>Your payment has been processed!</h4>
-                        <p><strong>Name:</strong> {{ name }}</p>
-                        <p><strong>Address:</strong> {{ address }}</p>
-                        
-                        <h5>Encrypted Information</h5>
-                        <p><strong>Credit Card Encrypted:</strong> {{ encrypted_payment['credit_card'] }}</p>
-                        <p><strong>Expiry Date Encrypted:</strong> {{ encrypted_payment['expiry_date'] }}</p>
-                        <p><strong>CVC Encrypted:</strong> {{ encrypted_payment['cvc'] }}</p>
-
-                        <h5 class="mt-4">Decrypted Information</h5>
-                        <p><strong>Credit Card Decrypted:</strong> {{ decrypted_payment['credit_card'] }}</p>
-                        <p><strong>Expiry Date Decrypted:</strong> {{ decrypted_payment['expiry_date'] }}</p>
-                        <p><strong>CVC Decrypted:</strong> {{ decrypted_payment['cvc'] }}</p>
                     </div>
                 {% endif %}
                 

@@ -169,25 +169,24 @@ def log_history(encryption_method, encrypted_data, decrypted_data, encryption_ti
     encrypted_entropy = calculate_entropy(encrypted_data)
     decrypted_entropy = calculate_entropy(decrypted_data)
     
-    # Append a new log entry to the history
     session['history'].append({
         'encryption_method': encryption_method,
-        'encrypted_data': base64.b64encode(encrypted_data).decode('utf-8'),  # Store in base64
+        'encrypted_data': base64.b64encode(encrypted_data).decode('utf-8'),
         'decrypted_data': decrypted_data,
         'encryption_time': f"{encryption_time:.6f} seconds",
         'decryption_time': f"{decryption_time:.6f} seconds",
         'total_execution_time': f"{total_execution_time:.6f} seconds",
-        'encryption_memory': f"{encryption_memory / 1024:.2f} KB",  # Convert to KB
-        'decryption_memory': f"{decryption_memory / 1024:.2f} KB",  # Convert to KB
-        'generated_key': base64_generated_key,  # Store the base64-encoded generated key
-        'encryption_throughput': f"{encryption_throughput:.2f} KB/sec",  # Throughput for encryption (KB/sec)
-        'decryption_throughput': f"{decryption_throughput:.2f} KB/sec",  # Throughput for decryption (KB/sec)
-        'encrypted_entropy': f"{encrypted_entropy:.6f}",  # Entropy of encrypted data
-        'decrypted_entropy': f"{decrypted_entropy:.6f}",  # Entropy of decrypted data
-        'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')  # Timestamp for the transaction
+        'encryption_memory': f"{encryption_memory / 1024:.2f} KB",
+        'decryption_memory': f"{decryption_memory / 1024:.2f} KB",
+        'generated_key': base64_generated_key,
+        'encryption_throughput': f"{encryption_throughput:.2f} KB/sec",
+        'decryption_throughput': f"{decryption_throughput:.2f} KB/sec",
+        'encrypted_entropy': f"{encrypted_entropy:.6f}",
+        'decrypted_entropy': f"{decrypted_entropy:.6f}",
+        'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
     })
-    # Make sure to save the updated session data
     session.modified = True
+
 
 
 
@@ -449,22 +448,16 @@ def calculate_average(data):
     return sum(valid_data) / len(valid_data) if valid_data else 0
 
 
-# Pass performance data to the template
+# Route for performance analysis page
 @app.route('/performance')
 def performance():
-    # Extract history from session
     history = session.get('history', [])
-
-    # Initialize data containers for the two encryption methods
     hybrid_chaotic_data = {
         'encryption_times': [],
         'decryption_times': [],
         'total_execution_times': [],
         'encryption_memories': [],
         'decryption_memories': [],
-        'encrypted_data': [],
-        'decrypted_data': [],
-        'timestamps': [],
         'encryption_throughput': [],
         'decryption_throughput': [],
         'encrypted_entropy': [],
@@ -476,40 +469,25 @@ def performance():
         'total_execution_times': [],
         'encryption_memories': [],
         'decryption_memories': [],
-        'encrypted_data': [],
-        'decrypted_data': [],
-        'timestamps': [],
         'encryption_throughput': [],
         'decryption_throughput': [],
         'encrypted_entropy': [],
         'decrypted_entropy': []
     }
 
-    # Process history to separate data based on encryption method
     for record in history:
         data_container = hybrid_chaotic_data if record['encryption_method'] == 'hybrid_chaotic' else rctm_data
-        
         data_container['encryption_times'].append(float(record['encryption_time'].split()[0]))
         data_container['decryption_times'].append(float(record['decryption_time'].split()[0]))
         data_container['total_execution_times'].append(float(record['total_execution_time'].split()[0]))
         data_container['encryption_memories'].append(float(record['encryption_memory'].split()[0]))
         data_container['decryption_memories'].append(float(record['decryption_memory'].split()[0]))
-        
-        data_container['encrypted_data'].append(record['encrypted_data'])
-        data_container['decrypted_data'].append(record['decrypted_data'])
-        
-        data_container['timestamps'].append(record['timestamp'])
-        
-        # Add throughput and entropy data
-        data_container['encryption_throughput'].append(record['encryption_throughput'])
-        data_container['decryption_throughput'].append(record['decryption_throughput'])
-        data_container['encrypted_entropy'].append(record['encrypted_entropy'])
-        data_container['decrypted_entropy'].append(record['decrypted_entropy'])
+        data_container['encryption_throughput'].append(float(record['encryption_throughput'].split()[0]))
+        data_container['decryption_throughput'].append(float(record['decryption_throughput'].split()[0]))
+        data_container['encrypted_entropy'].append(float(record['encrypted_entropy']))
+        data_container['decrypted_entropy'].append(float(record['decrypted_entropy']))
 
-    performance_data = {
-        'hybrid_chaotic': hybrid_chaotic_data,
-        'rctm': rctm_data
-    }
+    performance_data = {'hybrid_chaotic': hybrid_chaotic_data, 'rctm': rctm_data}
 
     return render_template('performance.html', performance_data=performance_data)
 

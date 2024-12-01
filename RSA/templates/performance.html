@@ -72,7 +72,7 @@
             </div>
             <div class="col-md-4 col-lg-12 chart-container">
                 <div class="chart-card">
-                    <h3>Encryption Throughput (Bytes/sec)</h3>
+                    <h3>Encryption Throughput (KB/sec)</h3>
                     <canvas id="encryptionThroughputChart"></canvas>
                     <p><strong>Hybrid Chaotic Average:</strong> <span id="avg-hybrid-throughput"></span></p>
                     <p><strong>RCTM Average:</strong> <span id="avg-rctm-throughput"></span></p>
@@ -92,7 +92,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Select the clear history button
-            const clearHistoryBtn = document.querySelector('a[href="{{ url_for("clear_history") }}"]');
+            const clearHistoryBtn = document.querySelector('a[href="{{ url_for('clear_history') }}"]');
             // Add click event listener to the button
             clearHistoryBtn.addEventListener('click', function(event) {
                 // Prevent the default link behavior
@@ -147,6 +147,12 @@
             });
         }
 
+        const avgHybridTotalExecutionTime = calculateAverage(performanceData.hybrid_chaotic.total_execution_times);
+        const avgRctmTotalExecutionTime = calculateAverage(performanceData.rctm.total_execution_times);
+        document.getElementById('avg-hybrid-total-execution-time').textContent = avgHybridTotalExecutionTime.toFixed(6);
+        document.getElementById('avg-rctm-total-execution-time').textContent = avgRctmTotalExecutionTime.toFixed(6);
+
+
         // Calculate and display the averages for each chart
         const avgHybridEncryptionTime = calculateAverage(performanceData.hybrid_chaotic.encryption_times);
         const avgRctmEncryptionTime = calculateAverage(performanceData.rctm.encryption_times);
@@ -158,12 +164,11 @@
         document.getElementById('avg-hybrid-decryption-time').textContent = avgHybridDecryptionTime.toFixed(6);
         document.getElementById('avg-rctm-decryption-time').textContent = avgRctmDecryptionTime.toFixed(6);
 
-                // Calculate and display the averages for throughput
+        // Calculate and display the averages for throughput
         const avgHybridThroughput = calculateAverage(performanceData.hybrid_chaotic.encryption_throughput);
         const avgRctmThroughput = calculateAverage(performanceData.rctm.encryption_throughput);
         document.getElementById('avg-hybrid-throughput').textContent = avgHybridThroughput.toFixed(6);
         document.getElementById('avg-rctm-throughput').textContent = avgRctmThroughput.toFixed(6);  
-
 
         const avgHybridEncryptionMemory = calculateAverage(performanceData.hybrid_chaotic.encryption_memories);
         const avgRctmEncryptionMemory = calculateAverage(performanceData.rctm.encryption_memories);
