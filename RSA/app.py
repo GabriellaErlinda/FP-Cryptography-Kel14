@@ -153,7 +153,8 @@ CATALOG = [
     {'id': 6, 'name': 'Mouse', 'price': 120, 'description': 'Gaming Mouse.', 'image': 'images/mouse.jpg'}
 ]
 
-def log_history(encryption_method, encrypted_data, decrypted_data, encryption_time, decryption_time, total_execution_time, encryption_memory, decryption_memory, generated_key):
+def log_history(encryption_method, encrypted_credit_card, encrypted_expiry_date, encrypted_cvc, decrypted_data,
+                encryption_time, decryption_time, total_execution_time, encryption_memory, decryption_memory, generated_key):
     # Initialize session history if it's not present
     if 'history' not in session:
         session['history'] = []
@@ -162,30 +163,34 @@ def log_history(encryption_method, encrypted_data, decrypted_data, encryption_ti
     base64_generated_key = base64.b64encode(generated_key).decode('utf-8')
 
     # Calculate throughput and entropy for both encrypted and decrypted data
-    encryption_throughput = calculate_throughput(len(encrypted_data), encryption_time)
+    encryption_throughput = calculate_throughput(len(encrypted_credit_card), encryption_time)
     decryption_throughput = calculate_throughput(len(decrypted_data), decryption_time)
     
     # Calculate entropy for encrypted data
-    encrypted_entropy = calculate_entropy(encrypted_data)
+    encrypted_entropy = calculate_entropy(encrypted_credit_card)
     decrypted_entropy = calculate_entropy(decrypted_data)
     
+    # Append to history
     session['history'].append({
         'encryption_method': encryption_method,
-        'encrypted_data': base64.b64encode(encrypted_data).decode('utf-8'),
-        'decrypted_data': decrypted_data,
+        'encrypted_credit_card': base64.b64encode(encrypted_credit_card).decode('utf-8'),  # Encrypted credit card
+        'encrypted_expiry_date': base64.b64encode(encrypted_expiry_date).decode('utf-8'),  # Encrypted expiry date
+        'encrypted_cvc': base64.b64encode(encrypted_cvc).decode('utf-8'),  # Encrypted CVC
+        'decrypted_data': decrypted_data,  # Decrypted data
         'encryption_time': f"{encryption_time:.6f} seconds",
         'decryption_time': f"{decryption_time:.6f} seconds",
         'total_execution_time': f"{total_execution_time:.6f} seconds",
-        'encryption_memory': f"{encryption_memory / 1024:.2f} KB",
-        'decryption_memory': f"{decryption_memory / 1024:.2f} KB",
-        'generated_key': base64_generated_key,
-        'encryption_throughput': f"{encryption_throughput:.2f} KB/sec",
-        'decryption_throughput': f"{decryption_throughput:.2f} KB/sec",
-        'encrypted_entropy': f"{encrypted_entropy:.6f}",
-        'decrypted_entropy': f"{decrypted_entropy:.6f}",
-        'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
+        'encryption_memory': f"{encryption_memory / 1024:.2f} KB",  # Encrypted memory in KB
+        'decryption_memory': f"{decryption_memory / 1024:.2f} KB",  # Decrypted memory in KB
+        'generated_key': base64_generated_key,  # Base64-encoded key
+        'encryption_throughput': f"{encryption_throughput:.2f} KB/sec",  # Encryption throughput
+        'decryption_throughput': f"{decryption_throughput:.2f} KB/sec",  # Decryption throughput
+        'encrypted_entropy': f"{encrypted_entropy:.6f}",  # Encrypted entropy
+        'decrypted_entropy': f"{decrypted_entropy:.6f}",  # Decrypted entropy
+        'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')  # Timestamp for the transaction
     })
     session.modified = True
+
 
 
 
@@ -292,6 +297,7 @@ def test_randomness():
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     if request.method == 'POST':
+        # Get form data
         name = request.form['name']
         address = request.form['address']
         credit_card = request.form['credit_card']
@@ -299,10 +305,9 @@ def checkout():
         cvc = request.form['cvc']
         encryption_method = request.form['encryption_method']  # Get selected encryption method
         
-        # Secret Key for Hybrid Chaotic or RCTM key generation
+        # Generate secret key for encryption based on selected method (RCTM or Hybrid Chaotic)
         secret_key = random.random()  # Secret key for chaotic map generation
         
-        # Generate key using the selected method (RCTM or Hybrid Chaotic)
         if encryption_method == 'rctm':
             generated_key = rctm_key(secret_key)
         elif encryption_method == 'hybrid_chaotic':
@@ -310,6 +315,7 @@ def checkout():
         else:
             generated_key = b'\0' * 16  # Default key if no method is selected (AES requires 16-byte key)
 
+        # Encrypt the credit card, expiry date, and CVC
         tracemalloc.start()  # Start memory tracking
         start_memory_credit_card = tracemalloc.get_traced_memory()[0]
         start_time_credit_card = time.perf_counter()
@@ -339,7 +345,7 @@ def checkout():
         encryption_end_time_expiry = time.perf_counter()
         encryption_time_expiry = encryption_end_time_expiry - start_time_expiry
         end_memory_encrypt_expiry = tracemalloc.get_traced_memory()[0]
-        encryption_memory_encrypt_expiry = end_memory_encrypt_expiry - start_memory_encrypt_expiry
+        encryption_memory_expiry_date = end_memory_encrypt_expiry - start_memory_encrypt_expiry
         tracemalloc.stop()
 
         # Measure decryption time and memory usage for expiry date
@@ -350,7 +356,7 @@ def checkout():
         decryption_end_time_expiry = time.perf_counter()
         decryption_time_expiry = decryption_end_time_expiry - start_decrypt_time_expiry
         end_memory_decrypt_expiry = tracemalloc.get_traced_memory()[0]
-        decryption_memory_decrypt_expiry = end_memory_decrypt_expiry - start_memory_decrypt_expiry
+        decryption_memory_expiry_date = end_memory_decrypt_expiry - start_memory_decrypt_expiry
         tracemalloc.stop()
 
         # Measure encryption time and memory usage for CVC
@@ -361,7 +367,7 @@ def checkout():
         encryption_end_time_cvc = time.perf_counter()
         encryption_time_cvc = encryption_end_time_cvc - start_time_cvc
         end_memory_encrypt_cvc = tracemalloc.get_traced_memory()[0]
-        encryption_memory_encrypt_cvc = end_memory_encrypt_cvc - start_memory_encrypt_cvc
+        encryption_memory_cvc = end_memory_encrypt_cvc - start_memory_encrypt_cvc
         tracemalloc.stop()
 
         # Measure decryption time and memory usage for CVC
@@ -372,22 +378,23 @@ def checkout():
         decryption_end_time_cvc = time.perf_counter()
         decryption_time_cvc = decryption_end_time_cvc - start_decrypt_time_cvc
         end_memory_decrypt_cvc = tracemalloc.get_traced_memory()[0]
-        decryption_memory_decrypt_cvc = end_memory_decrypt_cvc - start_memory_decrypt_cvc
+        decryption_memory_cvc = end_memory_decrypt_cvc - start_memory_decrypt_cvc
         tracemalloc.stop()
 
-        # Calculate total execution time
+        # Calculate total execution time (sum of encryption and decryption times)
         total_execution_time = (encryption_time_credit_card + decryption_time_credit_card + 
                                 encryption_time_expiry + decryption_time_expiry + 
                                 encryption_time_cvc + decryption_time_cvc)
         
-        encryption_memories = (encryption_memory_credit_card + encryption_memory_encrypt_expiry +
-                                encryption_memory_encrypt_cvc)
-        decryption_memories = (decryption_memory_credit_card + decryption_memory_decrypt_expiry +
-                                decryption_memory_decrypt_cvc)
+        # Calculate total memory used during encryption and decryption
+        encryption_memories = (encryption_memory_credit_card + encryption_memory_expiry_date +
+                                encryption_memory_cvc)
+        decryption_memories = (decryption_memory_credit_card + decryption_memory_expiry_date +
+                                decryption_memory_cvc)
 
         # Log the transaction including the generated key
-        log_history(encryption_method, encrypted_credit_card, decrypted_credit_card, encryption_time_credit_card, 
-                    decryption_time_credit_card, total_execution_time, encryption_memories, decryption_memories, generated_key)
+        log_history(encryption_method, encrypted_credit_card, encrypted_expiry_date, encrypted_cvc, decrypted_credit_card,
+                    encryption_time_credit_card, decryption_time_credit_card, total_execution_time, encryption_memories, decryption_memories, generated_key)
 
         return render_template('checkout.html', 
             encrypted_payment={

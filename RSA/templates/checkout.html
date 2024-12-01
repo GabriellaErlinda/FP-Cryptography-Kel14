@@ -71,7 +71,9 @@
                     <tr>
                         <th>Timestamp</th>
                         <th>Encryption Method</th>
-                        <th>Encrypted Data</th>
+                        <th>Encrypted Credit Card</th>
+                        <th>Encrypted Expiry Date</th>
+                        <th>Encrypted CVC</th>
                         <th>Decrypted Data</th>
                         <th>Encryption Time</th>
                         <th>Decryption Time</th>
@@ -79,9 +81,7 @@
                         <th>Encryption Memory (KB)</th>
                         <th>Decryption Memory (KB)</th>
                         <th>Encryption Throughput (bytes/sec)</th>
-                        <th>Decryption Throughput (bytes/sec)</th>
                         <th>Encrypted Entropy</th>
-                        <th>Decrypted Entropy</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -89,7 +89,9 @@
                     <tr>
                         <td>{{ entry.timestamp }}</td>
                         <td>{{ entry.encryption_method }}</td>
-                        <td>{{ entry.encrypted_data }}</td>
+                        <td>{{ entry.encrypted_credit_card }}</td>
+                        <td>{{ entry.encrypted_expiry_date }}</td>
+                        <td>{{ entry.encrypted_cvc }}</td>
                         <td>{{ entry.decrypted_data }}</td>
                         <td>{{ entry.encryption_time }}</td>
                         <td>{{ entry.decryption_time }}</td>
@@ -97,9 +99,7 @@
                         <td>{{ entry.encryption_memory }}</td>
                         <td>{{ entry.decryption_memory }}</td>
                         <td>{{ entry.encryption_throughput }}</td>
-                        <td>{{ entry.decryption_throughput }}</td>
                         <td>{{ entry.encrypted_entropy }}</td>
-                        <td>{{ entry.decrypted_entropy }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
