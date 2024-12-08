@@ -35,7 +35,7 @@ Dari log riwayat transaksi pada page checkout, data-data tadi akan diteruskan ke
 
 ### Percobaan
 Percobaan untuk menganalisis hasil perbandingan performa keduanya kami lakukan sebanyak 50x running untuk masing-masing formula.
-Hasil percobaan dapat dilihat di ![Sheets Performance Analysis - Kel14](https://docs.google.com/spreadsheets/d/1wF3TNwW2jKv0-xbTv-Et2CC9iT_aiEc_6NKauzH1Ofk/edit?usp=sharing)
+Hasil percobaan dapat dilihat di [Sheets Performance Analysis - Kel14](https://docs.google.com/spreadsheets/d/1wF3TNwW2jKv0-xbTv-Et2CC9iT_aiEc_6NKauzH1Ofk/edit?usp=sharing)
 
 ### Hasil Perbandingan
 | TABEL PERBANDINGAN                | HYBRID CHAOTIC  | RCTM            | 
