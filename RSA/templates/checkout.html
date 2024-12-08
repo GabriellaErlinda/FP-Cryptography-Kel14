@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom padding for table cells */
+        table th, table td {
+            padding: 12px 15px; /* Add padding to table headers and cells */
+        }
+    </style>
 </head>
 <body>
     <div class="container my-5">
@@ -64,47 +70,49 @@
         
         <!-- Transaction History Table -->
         {% if history %}
-        <div class="mt-5" style="width: 100%; padding: 20px;">
+        <div class="mt-5" style="padding: 20px;">
             <h3 class="text-center">Transaction History</h3>
-            <table class="table table-striped" style="width: 100%;">
-                <thead>
-                    <tr>
-                        <th>Timestamp</th>
-                        <th>Encryption Method</th>
-                        <th>Encrypted Credit Card</th>
-                        <th>Encrypted Expiry Date</th>
-                        <th>Encrypted CVC</th>
-                        <th>Decrypted Data</th>
-                        <th>Encryption Time</th>
-                        <th>Decryption Time</th>
-                        <th>Total Execution Time</th>
-                        <th>Encryption Memory (KB)</th>
-                        <th>Decryption Memory (KB)</th>
-                        <th>Encryption Throughput (bytes/sec)</th>
-                        <th>Encrypted Entropy</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for entry in history %}
-                    <tr>
-                        <td>{{ entry.timestamp }}</td>
-                        <td>{{ entry.encryption_method }}</td>
-                        <td>{{ entry.encrypted_credit_card }}</td>
-                        <td>{{ entry.encrypted_expiry_date }}</td>
-                        <td>{{ entry.encrypted_cvc }}</td>
-                        <td>{{ entry.decrypted_data }}</td>
-                        <td>{{ entry.encryption_time }}</td>
-                        <td>{{ entry.decryption_time }}</td>
-                        <td>{{ entry.total_execution_time }}</td>
-                        <td>{{ entry.encryption_memory }}</td>
-                        <td>{{ entry.decryption_memory }}</td>
-                        <td>{{ entry.encryption_throughput }}</td>
-                        <td>{{ entry.encrypted_entropy }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+            <div class="table-responsive">
+                <table class="table table-striped" style="width: 100%; max-width: 1200px; margin: 0 auto;">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Encryption Method</th>
+                            <th>Encrypted Credit Card</th>
+                            <th>Encrypted Expiry Date</th>
+                            <th>Encrypted CVC</th>
+                            <th>Decrypted Data</th>
+                            <th>Encryption Time</th>
+                            <th>Decryption Time</th>
+                            <th>Total Execution Time</th>
+                            <th>Encryption Memory (KB)</th>
+                            <th>Decryption Memory (KB)</th>
+                            <th>Encryption Throughput (bytes/sec)</th>
+                            <th>Encrypted Entropy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in history %}
+                        <tr>
+                            <td>{{ entry.timestamp }}</td>
+                            <td>{{ entry.encryption_method }}</td>
+                            <td>{{ entry.encrypted_credit_card }}</td>
+                            <td>{{ entry.encrypted_expiry_date }}</td>
+                            <td>{{ entry.encrypted_cvc }}</td>
+                            <td>{{ entry.decrypted_data }}</td>
+                            <td>{{ entry.encryption_time }}</td>
+                            <td>{{ entry.decryption_time }}</td>
+                            <td>{{ entry.total_execution_time }}</td>
+                            <td>{{ entry.encryption_memory }}</td>
+                            <td>{{ entry.decryption_memory }}</td>
+                            <td>{{ entry.encryption_throughput }}</td>
+                            <td>{{ entry.encrypted_entropy }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>        
         {% endif %}
     </div>
 </body>
