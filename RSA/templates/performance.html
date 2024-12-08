@@ -10,6 +10,8 @@
         /* Custom styles for better spacing and responsiveness */
         .chart-container {
             margin-bottom: 30px;
+            overflow-x: auto;
+            width: 100%; 
         }
         .chart-card {
             padding: 20px;
@@ -20,6 +22,9 @@
         h3 {
             font-weight: bold;
             color: #333;
+        }
+        canvas {
+            width: 100% !important; 
         }
     </style>
 </head>
@@ -32,7 +37,7 @@
         <div class="row mt-4">
             <div class="col-md-4 col-lg-12 chart-container">
                 <div class="chart-card">
-                    <h3>Total Execution Time (Seconds)</h3>
+                    <h3>Total Execution Time (ms)</h3>
                     <canvas id="totalExecutionTimeChart"></canvas>
                     <p><strong>Hybrid Chaotic Average:</strong> <span id="avg-hybrid-total-execution-time"></span></p>
                     <p><strong>RCTM Average:</strong> <span id="avg-rctm-total-execution-time"></span></p>
@@ -40,7 +45,7 @@
             </div>
             <div class="col-md-4 col-lg-6 chart-container">
                 <div class="chart-card">
-                    <h3>Encryption Time (s)</h3>
+                    <h3>Encryption Time (ms)</h3>
                     <canvas id="encryptionTimeChart"></canvas>
                     <p><strong>Hybrid Chaotic Average:</strong> <span id="avg-hybrid-encryption-time"></span></p>
                     <p><strong>RCTM Average:</strong> <span id="avg-rctm-encryption-time"></span></p>
@@ -48,7 +53,7 @@
             </div>
             <div class="col-md-4 col-lg-6 chart-container">
                 <div class="chart-card">
-                    <h3>Decryption Time (s)</h3>
+                    <h3>Decryption Time (ms)</h3>
                     <canvas id="decryptionTimeChart"></canvas>
                     <p><strong>Hybrid Chaotic Average:</strong> <span id="avg-hybrid-decryption-time"></span></p>
                     <p><strong>RCTM Average:</strong> <span id="avg-rctm-decryption-time"></span></p>
@@ -116,7 +121,7 @@
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels, // Labels for x-axis (trials)
+                    labels: Array.from({ length: labels.length }, (_, i) => `${i + 1}`), // Labels for x-axis (trials)
                     datasets: datasets // Data for each dataset
                 },
                 options: {
@@ -125,6 +130,13 @@
                         title: {
                             display: true,
                             text: title
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                autoSkip: false // Disable auto-skipping of labels on x-axis
+                            }
                         }
                     }
                 }
@@ -147,20 +159,19 @@
             });
         }
 
-        const avgHybridTotalExecutionTime = calculateAverage(performanceData.hybrid_chaotic.total_execution_times);
-        const avgRctmTotalExecutionTime = calculateAverage(performanceData.rctm.total_execution_times);
+        const avgHybridTotalExecutionTime = calculateAverage(performanceData.hybrid_chaotic.total_execution_times) * 1000; // Convert to ms
+        const avgRctmTotalExecutionTime = calculateAverage(performanceData.rctm.total_execution_times) * 1000; // Convert to ms
         document.getElementById('avg-hybrid-total-execution-time').textContent = avgHybridTotalExecutionTime.toFixed(6);
         document.getElementById('avg-rctm-total-execution-time').textContent = avgRctmTotalExecutionTime.toFixed(6);
 
-
         // Calculate and display the averages for each chart
-        const avgHybridEncryptionTime = calculateAverage(performanceData.hybrid_chaotic.encryption_times);
-        const avgRctmEncryptionTime = calculateAverage(performanceData.rctm.encryption_times);
+        const avgHybridEncryptionTime = calculateAverage(performanceData.hybrid_chaotic.encryption_times) * 1000; // Convert to ms
+        const avgRctmEncryptionTime = calculateAverage(performanceData.rctm.encryption_times) * 1000; // Convert to ms
         document.getElementById('avg-hybrid-encryption-time').textContent = avgHybridEncryptionTime.toFixed(6);
         document.getElementById('avg-rctm-encryption-time').textContent = avgRctmEncryptionTime.toFixed(6);
 
-        const avgHybridDecryptionTime = calculateAverage(performanceData.hybrid_chaotic.decryption_times);
-        const avgRctmDecryptionTime = calculateAverage(performanceData.rctm.decryption_times);
+        const avgHybridDecryptionTime = calculateAverage(performanceData.hybrid_chaotic.decryption_times) * 1000; // Convert to ms
+        const avgRctmDecryptionTime = calculateAverage(performanceData.rctm.decryption_times) * 1000; // Convert to ms
         document.getElementById('avg-hybrid-decryption-time').textContent = avgHybridDecryptionTime.toFixed(6);
         document.getElementById('avg-rctm-decryption-time').textContent = avgRctmDecryptionTime.toFixed(6);
 
@@ -189,18 +200,18 @@
         // Encryption Time Chart
         createChart(
             document.getElementById('encryptionTimeChart'),
-            'Encryption Time Comparison (Seconds)',
+            'Encryption Time Comparison (Milliseconds)',
             Array.from({ length: performanceData.hybrid_chaotic.encryption_times.length }, (_, i) => i + 1),
             [
                 {
-                    label: 'Hybrid Chaotic Encryption Time (s)',
-                    data: sanitizeData(performanceData.hybrid_chaotic.encryption_times),
+                    label: 'Hybrid Chaotic Encryption Time (ms)',
+                    data: sanitizeData(performanceData.hybrid_chaotic.encryption_times).map(item => item * 1000), // Convert to ms
                     borderColor: 'green',
                     fill: false
                 },
                 {
-                    label: 'RCTM Encryption Time (s)',
-                    data: sanitizeData(performanceData.rctm.encryption_times),
+                    label: 'RCTM Encryption Time (ms)',
+                    data: sanitizeData(performanceData.rctm.encryption_times).map(item => item * 1000), // Convert to ms
                     borderColor: 'red',
                     fill: false
                 }
@@ -210,18 +221,18 @@
         // Decryption Time Chart
         createChart(
             document.getElementById('decryptionTimeChart'),
-            'Decryption Time Comparison (Seconds)',
+            'Decryption Time Comparison (Milliseconds)',
             Array.from({ length: performanceData.hybrid_chaotic.decryption_times.length }, (_, i) => i + 1),
             [
                 {
-                    label: 'Hybrid Chaotic Decryption Time (s)',
-                    data: sanitizeData(performanceData.hybrid_chaotic.decryption_times),
+                    label: 'Hybrid Chaotic Decryption Time (ms)',
+                    data: sanitizeData(performanceData.hybrid_chaotic.decryption_times).map(item => item * 1000), // Convert to ms
                     borderColor: 'green',
                     fill: false
                 },
                 {
-                    label: 'RCTM Decryption Time (s)',
-                    data: sanitizeData(performanceData.rctm.decryption_times),
+                    label: 'RCTM Decryption Time (ms)',
+                    data: sanitizeData(performanceData.rctm.decryption_times).map(item => item * 1000), // Convert to ms
                     borderColor: 'red',
                     fill: false
                 }
@@ -231,18 +242,18 @@
         // Total Execution Time Chart
         createChart(
             document.getElementById('totalExecutionTimeChart'),
-            'Total Execution Time Comparison (Seconds)',
+            'Total Execution Time Comparison (Milliseconds)',
             Array.from({ length: performanceData.hybrid_chaotic.total_execution_times.length }, (_, i) => i + 1),
             [
                 {
-                    label: 'Hybrid Chaotic Total Execution Time (s)',
-                    data: sanitizeData(performanceData.hybrid_chaotic.total_execution_times),
+                    label: 'Hybrid Chaotic Total Execution Time (ms)',
+                    data: sanitizeData(performanceData.hybrid_chaotic.total_execution_times).map(item => item * 1000), // Convert to ms
                     borderColor: 'green',
                     fill: false
                 },
                 {
-                    label: 'RCTM Total Execution Time (s)',
-                    data: sanitizeData(performanceData.rctm.total_execution_times),
+                    label: 'RCTM Total Execution Time (ms)',
+                    data: sanitizeData(performanceData.rctm.total_execution_times).map(item => item * 1000), // Convert to ms
                     borderColor: 'red',
                     fill: false
                 }

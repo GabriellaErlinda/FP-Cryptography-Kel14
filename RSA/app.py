@@ -1,7 +1,7 @@
 import random
 import time
 import hashlib
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from markupsafe import Markup
 import tracemalloc
 import json
@@ -44,8 +44,6 @@ def hybrid_chaotic_key(seed, iterations=20):
     
     # Return a key derived from SHA-256 hash of combined sequence
     return hashlib.sha256(''.join(key_sequence).encode()).digest()  # AES expects a byte key
-
-
 
 
 # RCTM Key Generation (Simple Chaotic System)
@@ -190,9 +188,6 @@ def log_history(encryption_method, encrypted_credit_card, encrypted_expiry_date,
         'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')  # Timestamp for the transaction
     })
     session.modified = True
-
-
-
 
 
 
@@ -413,7 +408,6 @@ def checkout():
         )
     
     return render_template('checkout.html')
-
 
 # Add to cart functionality
 @app.route('/cart')

@@ -76,6 +76,7 @@
                 <table class="table table-striped" style="width: 100%; max-width: 1200px; margin: 0 auto;">
                     <thead>
                         <tr>
+                            <th>ID</th>
                             <th>Timestamp</th>
                             <th>Encryption Method</th>
                             <th>Encrypted Credit Card</th>
@@ -94,6 +95,7 @@
                     <tbody>
                         {% for entry in history %}
                         <tr>
+                            <td>{{ loop.index }}</td>
                             <td>{{ entry.timestamp }}</td>
                             <td>{{ entry.encryption_method }}</td>
                             <td>{{ entry.encrypted_credit_card }}</td>
