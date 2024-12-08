@@ -38,7 +38,7 @@ Percobaan untuk menganalisis hasil perbandingan performa keduanya kami lakukan s
 Hasil percobaan dapat dilihat di [Sheets Performance Analysis - Kel14](https://docs.google.com/spreadsheets/d/1wF3TNwW2jKv0-xbTv-Et2CC9iT_aiEc_6NKauzH1Ofk/edit?usp=sharing)
 
 ### Hasil Perbandingan
-| TABEL PERBANDINGAN                | HYBRID CHAOTIC  | RCTM            | 
+| TABEL PERBANDINGAN (rata-rata)    | HYBRID CHAOTIC  | RCTM            | 
 | --------------------------------- | --------------- | --------------- |
 | Encryption Time (s)               |    0.00002128   |    0.00001354   |
 | Decryption Time (s)               |    0.00001064   |    0.00000618   |
